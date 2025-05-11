@@ -1,79 +1,73 @@
-CREATE TABLE `user` (
-  `user_id` int, Indexed, UUID
-  `first_name` varchar(50), NOT NULL
-  `last_name` varchar(50),NOT NULL
-  `email` varchar(50), NOT NULL, UNIQUE
-  `password_hash` varchar(50), NOT NULL
-  `phone_number` varchar(50), NULL
-  `role` enum(guest, host, admin), NOT NULL
-  `created_at` timestamp, DEFAULT CURRENT_TIMESTAMP
-  PRIMARY KEY (`user_id`),
-  KEY `Key` (`first_name`, `last_name`, `email`, `password_hash`, `phone_number`, `role`, `created_at`)
+DROP TABLE IF EXISTS Message, Review, Payment, Booking, property, user;
+
+CREATE TABLE user ( 
+  user_id INT PRIMARY KEY,
+  first_name VARCHAR(50),
+  last_name VARCHAR(50),
+  email VARCHAR(50),
+  password_hash VARCHAR(50),
+  phone_number VARCHAR(50),
+  role ENUM('guest', 'host', 'admin'),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_user (first_name, last_name, email, password_hash, phone_number, role, created_at)
 );
 
-CREATE TABLE `property` (
-  `property_id` int, UUID, Indexed
-  `host_id` int, 
-  `name` varchar(50), NOT NULL
-  `description` text, NOT NULL
-  `location` varchar(50), NOT NULL
-  `pricepernight` decimal, NOT NULL
-  `created_at` timestamp, DEFAULT CURRENT_TIMESTAMP
-  `updated_at` timestamp, ON UPDATE CURRENT_TIMESTAMP
-  PRIMARY KEY (`property_id`),
-  FOREIGN KEY (`host_id`) REFERENCES `user`(`user_id`),
-  KEY `Key` (`name`, `description`, `location`, `pricepernight`, `created_at`, `updated_at`)
+CREATE TABLE property (
+  property_id INT PRIMARY KEY,
+  host_id INT,
+  name VARCHAR(50),
+  description TEXT,
+  location VARCHAR(50),
+  pricepernight DECIMAL(10, 2),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (host_id) REFERENCES user(user_id),
+  KEY idx_property (name, description(100), location, pricepernight, created_at, updated_at)
 );
 
-CREATE TABLE `Booking` (
-  `booking_id` int, UUID, Indexed
-  `property_id` int,
-  `user_id` int,
-  `start_date` date, NOT NULL
-  `end_date` date, NOT NULL
-  `total_price` decimal, NOT NULL
-  `status` enum(pending, confirmed, canceled), NOT NULL
-  `created_at` timestamp, DEFAULT CURRENT_TIMESTAMP
-  PRIMARY KEY (`booking_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
-  FOREIGN KEY (`property_id`) REFERENCES `property`(`property_id`),
-  KEY `Key` (`start_date`, `end_date`, `total_price`, `status`, `created_at`)
+CREATE TABLE Booking (
+  booking_id INT PRIMARY KEY,
+  property_id INT,
+  user_id INT,
+  start_date DATE,
+  end_date DATE,
+  total_price DECIMAL(10, 2),
+  status ENUM('pending', 'confirmed', 'cancelled'),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user(user_id),
+  FOREIGN KEY (property_id) REFERENCES property(property_id),
+  KEY idx_booking (start_date, end_date, total_price, status, created_at)
 );
 
-CREATE TABLE `Payment` (
-  `payment_id` int, UUID, Indexed
-  `booking_id` int,
-  `amount` decimal, NOT NULL
-  `payment_date` timestamp, DEFAULT CURRENT_TIMESTAMP
-  `payment_method` enum(credit_card, paypal, stripe),
-  PRIMARY KEY (`payment_id`),
-  FOREIGN KEY (`booking_id`) REFERENCES `Booking`(`booking_id`),
-  KEY `key` (`amount`),
-  KEY `Key` (`payment_date`, `payment_method`)
+CREATE TABLE Payment (
+  payment_id INT PRIMARY KEY,
+  booking_id INT,
+  amount DECIMAL(10, 2),
+  payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  payment_method ENUM('credit_card', 'paypal', 'bank_transfer'),
+  FOREIGN KEY (booking_id) REFERENCES Booking(booking_id),
+  KEY idx_payment_amount (amount),
+  KEY idx_payment_method (payment_date, payment_method)
 );
 
-CREATE TABLE `Review` (
-  `review_id` int, UUID, Indexed
-  `property_id` int, 
-  `user_id` int,
-  `rating` int, CHECK: rating >= 1 AND rating<= 5, NOT NULL
-  `comment` text, NOT NULL
-  `created_at` timestamp, DEFAULT CURRENT_TIMESTAMP
-  PRIMARY KEY (`review_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`),
-  FOREIGN KEY (`property_id`) REFERENCES `property`(`property_id`),
-  KEY `Key` (`rating`, `comment`, `created_at`)
+CREATE TABLE Review (
+  review_id INT PRIMARY KEY,
+  property_id INT,
+  user_id INT,
+  rating INT,
+  comment TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user(user_id),
+  FOREIGN KEY (property_id) REFERENCES property(property_id),
+  KEY idx_review (rating, comment(100), created_at)
 );
 
-CREATE TABLE `Message` (
-  `message_id` int, UUID, Indexed
-  `sender_id` int,
-  `recipient_id` int,
-  `message_body` text, NOT NULL
-  `sent_at` timestamp, DEFAULT CURRENT_TIMESTAMP
-  PRIMARY KEY (`message_id`),
-  FOREIGN KEY (`sender_id`) REFERENCES `user`(`user_id`),
-  KEY `Key` (`message_body`, `sent_at`)
+CREATE TABLE Message (
+  message_id INT PRIMARY KEY,
+  sender_id INT,
+  recipient_id INT,
+  message_body TEXT,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (sender_id) REFERENCES user(user_id),
+  KEY idx_message (message_body(100), sent_at)
 );
-
-
