@@ -13,3 +13,6 @@ CREATE INDEX idx_booking_startdate ON Booking(start_date);
 
 # Index on review table
 CREATE INDEX idx_review_property ON Review(property_id);
+
+# Measuring Performance
+EXPLAIN ANALYZE SELECT * FROM Booking WHERE user_id = 3;
