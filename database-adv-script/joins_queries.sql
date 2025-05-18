@@ -21,8 +21,8 @@ SELECT
     r.rating,
     r.comment,
     r.created_at
-FROM property p
-LEFT JOIN Review r ON p.property_id = r.property_id;
+FROM Property p
+LEFT JOIN review r ON p.property_id = r.property_id;
 
 # FULL OUTER JOIN Implemented using UNION since MySQL does not support FULL OUTER JOIN natively
 SELECT 
