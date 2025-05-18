@@ -12,7 +12,7 @@ SELECT
 FROM Booking b
 INNER JOIN user u ON b.user_id = u.user_id;
 
-#LEFT JOIN on properties and reviews
+# LEFT JOIN on properties and reviews
 SELECT 
     p.property_id,
     p.name AS property_name,
@@ -21,8 +21,9 @@ SELECT
     r.rating,
     r.comment,
     r.created_at
-FROM Property p
-LEFT JOIN review r ON p.property_id = r.property_id;
+FROM property p
+LEFT JOIN Review r ON p.property_id = r.property_id
+ORDER BY r.review_id IS NULL, r.created_at DESC;
 
 # FULL OUTER JOIN Implemented using UNION since MySQL does not support FULL OUTER JOIN natively
 SELECT 
